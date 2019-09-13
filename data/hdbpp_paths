@@ -1,0 +1,14 @@
+User name: rajiv
+
+
+Tango installation directory: /usr/local/tango-9.2.5a
+Tango library path: /usr/local/tango-9.2.5a/lib
+Tango include path: /usr/local/tango-9.2.5a/include/tango
+omniORB installation directory: /usr/local/omniORB-4.2.1
+omniORB include path: /usr/local/omniORB-4.2.1/include
+omniORB library path: /usr/local/omniORB-4.2.1/lib
+ZMQ installation directory (installed in Tango directory): /usr/local/tango-9.2.5a
+ZMQ include path: /usr/local/zeromq-4.0.5/include
+ZMQ library path: /usr/local/tango-9.2.5a/lib
+HDB++ installation directory: /usr/local/hdb++
+
