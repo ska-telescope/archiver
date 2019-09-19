@@ -58,58 +58,82 @@ services:
       - TANGO_HOST=${TANGO_HOST}
     command: >
       sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
-             json2tango -w -a -u tango-example/charts/tango-example/data/configuration.json  &&
+             json2tango -w -a -u /tango-example/data/devices.json  &&
              sleep infinity"
     volumes:
       - .:/tango-example
 
-  dsconfigdump:
-    image: nexus.engageska-portugal.pt/ska-docker/tango-dsconfig:latest
+#  dsconfigdump:
+#    image: nexus.engageska-portugal.pt/ska-docker/tango-dsconfig:latest
+#    network_mode: ${NETWORK_MODE}
+#    container_name: ${CONTAINER_NAME_PREFIX}dsconfigdump
+#    depends_on:
+#      - databaseds
+#    environment:
+#      - TANGO_HOST=${TANGO_HOST}
+#    command: >
+#      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
+#             python -m dsconfig.dump && sleep infinity"
+#    volumes:
+#      - .:/tango-example
+
+  cassandra:
+      image: bitnami/cassandra:latest
+      network_mode: ${NETWORK_MODE}
+      container_name: cassandra
+      ports:
+        - "9042:9042"
+      environment:
+        - CASSANDRA_HOME="/apache-cassandra-2.2.11"
+        - CASSANDRA_TRANSPORT_PORT_NUMBER=7000
+      volumes:
+        - ./out/cassandra_data:/var/lib/cassandra
+#        - /path/to/cassandra.yaml:/bitnami/cassandra/conf/cassandra.yaml:ro
+#      entrypoint:
+#        - /apache-cassandra-2.2.11/bin/cassandra.sh
+
+  hdbpp-es:
+    image: archiver:latest
     network_mode: ${NETWORK_MODE}
-    container_name: ${CONTAINER_NAME_PREFIX}dsconfigdump
+    container_name: ${CONTAINER_NAME_PREFIX}hdbpp-es
     depends_on:
       - databaseds
-    environment:
-      - TANGO_HOST=${TANGO_HOST}
-    command: >
-      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
-             python -m dsconfig.dump && sleep infinity"
-    volumes:
-      - .:/tango-example
-
-  powersupply:
-    image: ${DOCKER_REGISTRY_HOST}/${DOCKER_REGISTRY_USER}/tango-example:latest
-    network_mode: ${NETWORK_MODE}
-    container_name: ${CONTAINER_NAME_PREFIX}powersupply
-    depends_on:
       - dsconfig
+      - cassandra
     environment:
       - TANGO_HOST=${TANGO_HOST}
+      - HdbManager=archiving/hdbpp/confmanager01
+      - HDB_TYPE=cassandra
+      - HDB_NAME=hdb
     command: >
       sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
-             /venv/bin/python /app/powersupply/powersupply.py test"
+             /hdb++/hdbpp-es/bin/HdbEventSubscriber 01"
 
-  motor:
-    image: ${DOCKER_REGISTRY_HOST}/${DOCKER_REGISTRY_USER}/tango-example:latest
+  hdbpp-cm:
+    image: archiver:latest
     network_mode: ${NETWORK_MODE}
-    container_name: ${CONTAINER_NAME_PREFIX}motor
+    container_name: ${CONTAINER_NAME_PREFIX}hdbpp-cm
     depends_on:
+      - databaseds
       - dsconfig
+      - cassandra
     environment:
       - TANGO_HOST=${TANGO_HOST}
+      - HdbManager=archiving/hdbpp/confmanager01
+      - HDB_TYPE=cassandra
+      - HDB_NAME=hdb
     command: >
       sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
-             /venv/bin/python /app/Motor/Motor.py test"
+             /hdb++/hdbpp-cm/bin/HdbConfigurationManager 01"
 
-  eventreceiver:
-    image: ${DOCKER_REGISTRY_HOST}/${DOCKER_REGISTRY_USER}/tango-example:latest
-    network_mode: ${NETWORK_MODE}
-    container_name: ${CONTAINER_NAME_PREFIX}eventreceiver
-    depends_on:
-      - dsconfig
-      - motor
-    environment:
-      - TANGO_HOST=${TANGO_HOST}
-    command: >
-      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
-             /venv/bin/python /app/EventReceiver/EventReceiver.py test"
+#  powersupply:
+#    image: nexus.engageska-portugal.pt/tango-example/tango-example:latest
+#    network_mode: ${NETWORK_MODE}
+#    container_name: ${CONTAINER_NAME_PREFIX}powersupply
+#    depends_on:
+#      - dsconfig
+#    environment:
+#      - TANGO_HOST=${TANGO_HOST}
+#    command: >
+#      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
+#             /venv/bin/python /app/powersupply/powersupply.py test"

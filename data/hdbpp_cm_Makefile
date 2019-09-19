@@ -2,7 +2,7 @@
 #	 Setup
 #-----------------------------------------
 
-NAME_SRV = hdb++cm-srv
+NAME_SRV = HdbConfigurationManager
 PREFIX=/usr/local
 
 #-----------------------------------------
@@ -102,7 +102,7 @@ bin obj:
 
 install:
 	install -d ${DESTDIR}$(PREFIX)/bin
-	install -m 755 bin/hdb++cm-srv ${DESTDIR}$(PREFIX)/bin
+	install -m 755 bin/$(NAME_SRV) ${DESTDIR}$(PREFIX)/bin
 
 #-----------------------------------------
 #	 Target specific options

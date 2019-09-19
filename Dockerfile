@@ -1,10 +1,13 @@
 FROM nexus.engageska-portugal.pt/ska-docker/tango-cpp:latest
 
-ADD hdbpp_es_Makefile .
-ADD PushThread.h .
-ADD hdbpp_cm_Makefile .
-ADD HdbConfigurationManager.h .
-ADD LibHdb++Cassandra.h .
+ADD data/hdbpp_es_Makefile .
+ADD data/PushThread.h .
+ADD data/hdbpp_cm_Makefile .
+ADD data/HdbConfigurationManager.h .
+ADD data/libhdbpp-mysql_Makefile .
+ADD data/LibHdb++MySQL.h .
+ADD data/LibHdb++Cassandra.h .
+ADD data/devices.json .
 
 # Install git
 ENV DEBIAN_FRONTEND noninteractive
@@ -13,7 +16,11 @@ RUN apt-get update
 RUN apt-get install -y --force-yes git
 RUN apt-get install -y --force-yes cmake
 RUN apt-get install -y --force-yes g++
+#RUN apt-get install -y --force-yes gcc
 RUN apt-get install -y --force-yes wget
+RUN apt-get install -y --force-yes default-libmysqlclient-dev
+
+RUN gcc -v
 
 
 #ARG tango_install_dir=/usr/local/tango-9.2.5a
@@ -103,6 +110,17 @@ RUN cd /hdb++ && \
     make && \
     make install
 
+RUN find / -iname mysql.h
+
+# Install libhdbpp-mysql
+#RUN cd /hdb++ && \
+#    git clone https://github.com/tango-controls-hdbpp/libhdbpp-mysql.git && \
+#    cd libhdbpp-mysql && \
+#    mv /LibHdb++MySQL.h ./src/LibHdb++MySQL.h && \
+#    mv /libhdbpp-mysql_Makefile ./Makefile && \
+#    make
+#RUN make install
+
 # Install libhdbpp-cassandra
 RUN cd /hdb++ && \
     git clone http://github.com/tango-controls-hdbpp/libhdbpp-cassandra.git && \
@@ -112,11 +130,16 @@ RUN cd /hdb++ && \
     mkdir build && \
     cd build && \
     ls /hdb++/libhdbpp-cassandra && \
-    find / -iname libcassandra.so && \
+    find / -iname libhdbppcassandra.so && \
     ls /hdb++/libhdbpp-cassandra/build && \
     cmake -DCMAKE_INSTALL_PREFIX="/hdb++/libhdbpp-cassandra" -DCMAKE_INCLUDE_PATH="/usr/local/include/tango;/hdb++/libhdbpp/src" -DCMAKE_LIBRARY_PATH="/usr/local/lib" .. && \
     make && \
     make install
-    
-    
 
+ENV LD_LIBRARY_PATH="/hdb++/libhdbpp/lib:/hdb++/libhdbpp-cassandra/build"
+ENV TANGO_HOST=localhost:10000
+RUN cd /hdb++/hdbpp-es/bin && \
+    find / -iname libhdb++.so.6 && \
+    echo $TANGO_HOST
+
+ENTRYPOINT "HdbEventSubscriber" "01"

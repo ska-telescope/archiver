@@ -2,7 +2,7 @@
 #	 Setup
 #-----------------------------------------
 
-NAME_SRV = hdb++es-srv
+NAME_SRV = HdbEventSubscriber
 PREFIX=/usr/local
 
 #-----------------------------------------
@@ -101,7 +101,7 @@ bin obj:
 
 install:
 	install -d ${DESTDIR}$(PREFIX)/bin
-	install -m 755 bin/hdb++es-srv ${DESTDIR}$(PREFIX)/bin
+	install -m 755 bin/$(NAME_SRV) ${DESTDIR}$(PREFIX)/bin
 
 #-----------------------------------------
 #	 Target specific options

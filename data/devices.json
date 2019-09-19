@@ -1,0 +1,55 @@
+{
+    "servers": {
+        "DataBaseds": {
+            "2": {
+                "DataBase": {
+                    "sys/database/2": {}
+                }
+            }
+        },
+        "HdbEventSubscriber": {
+            "01": {
+                "HdbEventSubscriber": {
+                    "archiving/hdbpp/eventsubscriber01": {
+                        "attribute_properties": {},
+                        "properties": {
+                            "CheckPeriodicTimeoutDelay": ["5"],
+                            "PollingThreadPeriod": ["3"],
+                            "LibConfiguration": ["libname=libhdb++cassandra.so.7","keyspace=hdb","consistency=LOCAL_QUORUM","port=9042","local_dc=datacenter1","contact_points=cassandra"],
+                            "polled_attr": []
+                        }
+                    }
+                }
+            }
+        },
+        "HdbConfigurationManager": {
+            "01": {
+                "HdbConfigurationManager": {
+                    "archiving/hdbpp/confmanager01": {
+                        "attribute_properties": {},
+                        "properties": {
+                            "ArchiverList": ["archiving/hdbpp/eventsubscriber01"],
+                            "MaxSearchSize": ["1000"],
+                            "LibConfiguration": ["libname=libhdb++cassandra.so.7","keyspace=hdb","consistency=LOCAL_QUORUM","port=9042","local_dc=datacenter1","contact_points=cassandra"],
+                            "polled_attr": []
+                        }
+                    }
+                }
+            }
+        },
+        "TangoAccessControl": {
+            "1": {
+                "TangoAccessControl": {
+                    "sys/access_control/1": {}
+                }
+            }
+        },
+        "TangoTest": {
+            "test": {
+                "TangoTest": {
+                    "sys/tg_test/1": {}
+                }
+            }
+        }
+    }
+}
