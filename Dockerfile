@@ -8,6 +8,8 @@ ADD data/libhdbpp-mysql_Makefile .
 ADD data/LibHdb++MySQL.h .
 ADD data/LibHdb++Cassandra.h .
 ADD data/devices.json .
+ADD data/attribute_fqdn.txt .
+ADD scripts/configure_hdbpp.py .
 
 # Install git
 ENV DEBIAN_FRONTEND noninteractive

@@ -164,3 +164,21 @@ services:
 #    command: >
 #      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
 #             /venv/bin/python /app/powersupply/powersupply.py test"
+
+  configurehdbpp:
+    image: archiver:latest
+    network_mode: ${NETWORK_MODE}
+    container_name: ${CONTAINER_NAME_PREFIX}configurehdbpp
+    depends_on:
+      - cassandra
+      - hdbpp-es
+      - hdbpp-cm
+    environment:
+      - TANGO_HOST=${TANGO_HOST}
+      - HdbManager=archiving/hdbpp/confmanager01
+      - HdbSubscriber=archiving/hdb++/eventsubscriber01
+      - HDB_TYPE=cassandra
+      - HDB_NAME=hdb
+    command: >
+      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
+           /venv/bin/python -u /configure_hdbpp.py archiving/hdb++/confmanager.01 archiving/hdb++/eventsubscriber.01 v4"
