@@ -78,19 +78,40 @@ services:
 #      - .:/tango-example
 
   cassandra:
-      image: bitnami/cassandra:latest
+      image: cassandra:2.2.14
       network_mode: ${NETWORK_MODE}
       container_name: cassandra
       ports:
         - "9042:9042"
       environment:
-        - CASSANDRA_HOME="/apache-cassandra-2.2.11"
-        - CASSANDRA_TRANSPORT_PORT_NUMBER=7000
+        - CASSANDRA_HOME="/apache-cassandra-2.2.14"
+        - CASSANDRA_START_RPC=true
       volumes:
         - ./out/cassandra_data:/var/lib/cassandra
 #        - /path/to/cassandra.yaml:/bitnami/cassandra/conf/cassandra.yaml:ro
 #      entrypoint:
 #        - /apache-cassandra-2.2.11/bin/cassandra.sh
+#        - ./apache-cassandra-2.2.14/bin/cassandra.sh #&& cqlsh -u cassandra -p cassandra -e describe keyspaces
+#        cqlsh -u cassandra -p cassandra -e describe keyspaces
+#      healthcheck:
+#        test: ["CMD", "cqlsh", "-u cassandra", "-p cassandra" ,"-e describe keyspaces"]
+#        interval: 15s
+#        timeout: 10s
+#        retries: 10
+
+#  cassandra-load-keyspace:
+#      image: cassandra:2.2.14
+#      network_mode: ${NETWORK_MODE}
+#      container_name: cassandra-load-keyspace
+#      depends_on:
+#        - cassandra
+#      environment:
+#        - CASSANDRA_CONTACT_POINTS=cassandra
+#      volumes:
+#        - ./data/create_hdb_cassandra.cql:/create_hdb_cassandra.cql
+#      command:
+#        sh -c "sleep 60 && cqlsh -f /create_hdb_cassandra.cql"
+
 
   hdbpp-es:
     image: archiver:latest
@@ -106,7 +127,10 @@ services:
       - HDB_TYPE=cassandra
       - HDB_NAME=hdb
     command: >
-      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
+      /bin/bash -c "
+        echo HELLO!!!;
+        sleep 50;
+        wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
              /hdb++/hdbpp-es/bin/HdbEventSubscriber 01"
 
   hdbpp-cm:
@@ -123,8 +147,11 @@ services:
       - HDB_TYPE=cassandra
       - HDB_NAME=hdb
     command: >
-      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
-             /hdb++/hdbpp-cm/bin/HdbConfigurationManager 01"
+        /bin/bash -c "
+          echo HELLO!!!;
+          sleep 50;
+          wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
+               /hdb++/hdbpp-cm/bin/HdbConfigurationManager 01"
 
 #  powersupply:
 #    image: nexus.engageska-portugal.pt/tango-example/tango-example:latest

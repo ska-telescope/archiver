@@ -142,4 +142,5 @@ RUN cd /hdb++/hdbpp-es/bin && \
     find / -iname libhdb++.so.6 && \
     echo $TANGO_HOST
 
-ENTRYPOINT "HdbEventSubscriber" "01"
+#CMD "HdbEventSubscriber" "01"
+#CMD "/bin/bash echo hello"
