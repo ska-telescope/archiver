@@ -83,35 +83,31 @@ services:
       container_name: cassandra
       ports:
         - "9042:9042"
+        - "9160:9160"
       environment:
         - CASSANDRA_HOME="/apache-cassandra-2.2.14"
         - CASSANDRA_START_RPC=true
+        - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+        - CASSANDRA_LISTEN_ADDRESS=auto
+        - CASSANDRA_DC=datacenter1
       volumes:
         - ./out/cassandra_data:/var/lib/cassandra
-#        - /path/to/cassandra.yaml:/bitnami/cassandra/conf/cassandra.yaml:ro
-#      entrypoint:
-#        - /apache-cassandra-2.2.11/bin/cassandra.sh
-#        - ./apache-cassandra-2.2.14/bin/cassandra.sh #&& cqlsh -u cassandra -p cassandra -e describe keyspaces
-#        cqlsh -u cassandra -p cassandra -e describe keyspaces
-#      healthcheck:
-#        test: ["CMD", "cqlsh", "-u cassandra", "-p cassandra" ,"-e describe keyspaces"]
-#        interval: 15s
-#        timeout: 10s
-#        retries: 10
 
-#  cassandra-load-keyspace:
-#      image: cassandra:2.2.14
-#      network_mode: ${NETWORK_MODE}
-#      container_name: cassandra-load-keyspace
-#      depends_on:
-#        - cassandra
-#      environment:
-#        - CASSANDRA_CONTACT_POINTS=cassandra
-#      volumes:
-#        - ./data/create_hdb_cassandra.cql:/create_hdb_cassandra.cql
-#      command:
-#        sh -c "sleep 60 && cqlsh -f /create_hdb_cassandra.cql"
-
+  cassandra-load-keyspace:
+      image: cassandra:2.2.14
+      network_mode: ${NETWORK_MODE}
+      container_name: cassandra-load-keyspace
+      depends_on:
+        - cassandra
+      environment:
+        - CASSANDRA_CONTACT_POINTS=cassandra
+      volumes:
+        - ./data/create_hdb_cassandra.cql:/create_hdb_cassandra.cql
+      command: >
+            /bin/bash -c "
+                echo HELLO!!!;
+                sleep 30;
+                cqlsh cassandra -f /create_hdb_cassandra.cql"
 
   hdbpp-es:
     image: archiver:latest
@@ -129,7 +125,7 @@ services:
     command: >
       /bin/bash -c "
         echo HELLO!!!;
-        sleep 50;
+        sleep 30;
         wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
              /hdb++/hdbpp-es/bin/HdbEventSubscriber 01"
 
@@ -149,7 +145,7 @@ services:
     command: >
         /bin/bash -c "
           echo HELLO!!!;
-          sleep 50;
+          sleep 30;
           wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
                /hdb++/hdbpp-cm/bin/HdbConfigurationManager 01"
 
