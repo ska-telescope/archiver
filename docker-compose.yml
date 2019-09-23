@@ -117,6 +117,7 @@ services:
       - databaseds
       - dsconfig
       - cassandra
+      - cassandra-load-keyspace
     environment:
       - TANGO_HOST=${TANGO_HOST}
       - HdbManager=archiving/hdbpp/confmanager01
@@ -137,6 +138,7 @@ services:
       - databaseds
       - dsconfig
       - cassandra
+      - cassandra-load-keyspace
     environment:
       - TANGO_HOST=${TANGO_HOST}
       - HdbManager=archiving/hdbpp/confmanager01
@@ -149,32 +151,43 @@ services:
           wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
                /hdb++/hdbpp-cm/bin/HdbConfigurationManager 01"
 
-#  powersupply:
-#    image: nexus.engageska-portugal.pt/tango-example/tango-example:latest
-#    network_mode: ${NETWORK_MODE}
-#    container_name: ${CONTAINER_NAME_PREFIX}powersupply
-#    depends_on:
-#      - dsconfig
-#    environment:
-#      - TANGO_HOST=${TANGO_HOST}
-#    command: >
-#      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
-#             /venv/bin/python /app/powersupply/powersupply.py test"
+  tangotest:
+    image: nexus.engageska-portugal.pt/tango-example/tango-example:latest
+    network_mode: ${NETWORK_MODE}
+    container_name: ${CONTAINER_NAME_PREFIX}tangotest
+    depends_on:
+      - dsconfig
+    environment:
+      - TANGO_HOST=${TANGO_HOST}
+    command: >
+      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
+             /usr/local/bin/TangoTest test"
 
   configurehdbpp:
-    image: archiver:latest
+    image: nexus.engageska-portugal.pt/ska-docker/ska-python-buildenv:0.1.0
     network_mode: ${NETWORK_MODE}
     container_name: ${CONTAINER_NAME_PREFIX}configurehdbpp
     depends_on:
+      - databaseds
+      - dsconfig
       - cassandra
+      - cassandra-load-keyspace
       - hdbpp-es
       - hdbpp-cm
     environment:
       - TANGO_HOST=${TANGO_HOST}
-      - HdbManager=archiving/hdbpp/confmanager01
-      - HdbSubscriber=archiving/hdb++/eventsubscriber01
-      - HDB_TYPE=cassandra
-      - HDB_NAME=hdb
+    volumes:
+        - ./scripts/configure_hdbpp.py:/configure_hdbpp.py
+        - ./data/attribute_fqdn.txt:/attribute_fqdn.txt
     command: >
-      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
-           /venv/bin/python -u /configure_hdbpp.py archiving/hdb++/confmanager.01 archiving/hdb++/eventsubscriber.01 v4"
+       /bin/bash -c "
+          echo HELLO!!!;
+          sleep 30;
+          wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
+            sudo chmod 777 /configure_hdbpp.py;
+            /venv/bin/python /configure_hdbpp.py v4"
+
+#      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
+#          sudo chmod 777 /configure_hdbpp.py;
+#         /venv/bin/python /configure_hdbpp.py v4"
+

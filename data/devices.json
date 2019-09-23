@@ -40,14 +40,56 @@
         "TangoAccessControl": {
             "1": {
                 "TangoAccessControl": {
-                    "sys/access_control/1": {}
+                    "sys/access_control/1": {
+                        "attribute_properties":{
+                            "double_scalar": {
+                               "abs_change": [
+                                   "-1",
+                                   "1"
+                               ],
+                                "archive_period": [
+                                   "3000"
+                               ],
+                               "event period": [
+                                   "3000"
+                               ]
+                           }
+                        },
+                        "properties": {
+                            "polled_attr": [
+                                "double_scalar",
+                                "1000"
+                            ]
+                        }
+                    }
                 }
             }
         },
         "TangoTest": {
             "test": {
                 "TangoTest": {
-                    "sys/tg_test/1": {}
+                    "sys/tg_test/1": {
+                        "attribute_properties": {
+                            "ampli": {
+                               "abs_change": [
+                                   "-1",
+                                   "1"
+                               ],
+                                "archive_period": [
+                                   "3000"
+                               ],
+                               "event period": [
+                                   "3000"
+                               ]
+                           }
+                        },
+                        "properties": {
+                            "polled_attr": [
+                                "ampli",
+                                "1000"
+                            ]
+                        }
+                    }
                 }
             }
         }

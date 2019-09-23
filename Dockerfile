@@ -1,4 +1,6 @@
 FROM nexus.engageska-portugal.pt/ska-docker/tango-cpp:latest
+# FROM nexus.engageska-portugal.pt/ska-docker/ska-python-buildenv:0.1.0 AS buildenv
+# FROM nexus.engageska-portugal.pt/ska-docker/ska-python-runtime:0.1.0 AS runtime
 
 ADD data/hdbpp_es_Makefile .
 ADD data/PushThread.h .
@@ -21,6 +23,7 @@ RUN apt-get install -y --force-yes g++
 #RUN apt-get install -y --force-yes gcc
 RUN apt-get install -y --force-yes wget
 RUN apt-get install -y --force-yes default-libmysqlclient-dev
+RUN apt-get install -y --force-yes uuid-dev
 
 RUN gcc -v
 
