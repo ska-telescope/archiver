@@ -65,15 +65,30 @@ RUN wget --no-check-certificate http://security.debian.org/debian-security/pool/
 
 # Install Cassandra C++ driver 2.2.1
 # cassandra-cpp-driver_2.2.1-1_amd64.deb
-RUN wget --no-check-certificate https://downloads.datastax.com/cpp-driver/ubuntu/14.04/cassandra/v2.2.1/cassandra-cpp-driver_2.2.1-1_amd64.deb && \
-    find / -iname cassandra-cpp-driver_2.2.1-1_amd64.deb && \
-    dpkg -i --force-overwrite /cassandra-cpp-driver_2.2.1-1_amd64.deb && \
-    apt-get install -f
+#RUN wget --no-check-certificate https://downloads.datastax.com/cpp-driver/ubuntu/14.04/cassandra/v2.2.1/cassandra-cpp-driver_2.2.1-1_amd64.deb && \
+#    find / -iname cassandra-cpp-driver_2.2.1-1_amd64.deb && \
+#    dpkg -i --force-overwrite /cassandra-cpp-driver_2.2.1-1_amd64.deb && \
+#    apt-get install -f
 # cassandra-cpp-driver-dev_2.2.1-1_amd64.deb
-RUN wget --no-check-certificate https://downloads.datastax.com/cpp-driver/ubuntu/14.04/cassandra/v2.2.1/cassandra-cpp-driver-dev_2.2.1-1_amd64.deb && \
-    find / -iname cassandra-cpp-driver-dev_2.2.1-1_amd64.deb && \
-    dpkg -i --force-overwrite /cassandra-cpp-driver-dev_2.2.1-1_amd64.deb && \
+#RUN wget --no-check-certificate https://downloads.datastax.com/cpp-driver/ubuntu/14.04/cassandra/v2.2.1/cassandra-cpp-driver-dev_2.2.1-1_amd64.deb && \
+#    find / -iname cassandra-cpp-driver-dev_2.2.1-1_amd64.deb && \
+#    dpkg -i --force-overwrite /cassandra-cpp-driver-dev_2.2.1-1_amd64.deb && \
+#    apt-get install -f
+
+
+# Install Cassandra C++ driver 2.0.1-1
+# cassandra-cpp-driver_2.0.1-1_amd64.deb
+RUN wget --no-check-certificate https://downloads.datastax.com/cpp-driver/ubuntu/14.04/cassandra/v2.0.1/cassandra-cpp-driver_2.0.1-1_amd64.deb && \
+    find / -iname cassandra-cpp-driver_2.0.1-1_amd64.deb && \
+    dpkg -i --force-overwrite /cassandra-cpp-driver_2.0.1-1_amd64.deb && \
     apt-get install -f
+
+# cassandra-cpp-driver-dev_2.0.1-1_amd64.deb
+RUN wget --no-check-certificate https://downloads.datastax.com/cpp-driver/ubuntu/14.04/cassandra/v2.0.1/cassandra-cpp-driver-dev_2.0.1-1_amd64.deb && \
+    find / -iname cassandra-cpp-driver-dev_2.0.1-1_amd64.deb && \
+    dpkg -i --force-overwrite /cassandra-cpp-driver-dev_2.0.1-1_amd64.deb && \
+    apt-get install -f
+
 
 # Install libhdbpp
 RUN mkdir hdb++ && \

@@ -182,7 +182,7 @@ services:
     command: >
        /bin/bash -c "
           echo HELLO!!!;
-          sleep 30;
+          sleep 40;
           wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
             sudo chmod 777 /configure_hdbpp.py;
             /venv/bin/python /configure_hdbpp.py v4"
