@@ -1,0 +1,29 @@
+#
+# Docker compose file for Cassandra database server
+#
+# Defines:
+#   - cassandra: Cassandra database server
+#
+# Requires:
+#   - None
+#
+version: '2.2'
+volumes:
+  cassandra: {}
+
+services:
+  cassandra:
+      image: cassandra:2.2.14
+      network_mode: ${NETWORK_MODE}
+      container_name: cassandra
+      ports:
+        - "9042:9042"
+        - "9160:9160"
+      environment:
+        - CASSANDRA_HOME="/apache-cassandra-2.2.14"
+        - CASSANDRA_START_RPC=true
+        - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+        - CASSANDRA_LISTEN_ADDRESS=auto
+        - CASSANDRA_DC=datacenter1
+      volumes:
+        - ./out/cassandra_data:/var/lib/cassandra

@@ -1,151 +1,156 @@
-FROM nexus.engageska-portugal.pt/ska-docker/tango-cpp:latest
-# FROM nexus.engageska-portugal.pt/ska-docker/ska-python-buildenv:0.1.0 AS buildenv
-# FROM nexus.engageska-portugal.pt/ska-docker/ska-python-runtime:0.1.0 AS runtime
+FROM registry.gitlab.com/s2innovation/tangobox-docker/tangobox-base:latest AS build
 
-ADD data/hdbpp_es_Makefile .
-ADD data/PushThread.h .
-ADD data/hdbpp_cm_Makefile .
-ADD data/HdbConfigurationManager.h .
-ADD data/libhdbpp-mysql_Makefile .
-ADD data/LibHdb++MySQL.h .
-ADD data/LibHdb++Cassandra.h .
-ADD data/devices.json .
-ADD data/attribute_fqdn.txt .
-ADD scripts/configure_hdbpp.py .
+RUN apt update \
+ && apt install -y \
+    checkinstall \
+    git \
+    cmake \
+    make \
+    g++ \
+    libomniorb4-dev \
+    libzmq3-dev \
+    libcos4-dev \
+    libmariadbclient-dev
 
-# Install git
-ENV DEBIAN_FRONTEND noninteractive
-USER root
-RUN apt-get update
-RUN apt-get install -y --force-yes git
-RUN apt-get install -y --force-yes cmake
-RUN apt-get install -y --force-yes g++
-#RUN apt-get install -y --force-yes gcc
-RUN apt-get install -y --force-yes wget
-RUN apt-get install -y --force-yes default-libmysqlclient-dev
-RUN apt-get install -y --force-yes uuid-dev
+RUN git clone -b v1.0.0 --depth 1 https://github.com/tango-controls-hdbpp/libhdbpp.git
 
-RUN gcc -v
+RUN cd libhdbpp \
+ && mkdir build \
+ && cd build \
+ && cmake .. -DHDBPP_DEV_INSTALL=ON -DCMAKE_INCLUDE_PATH=/usr/local/include/tango \
+ && make -j4
 
-
-#ARG tango_install_dir=/usr/local/tango-9.2.5a
-#ARG tango_lib_path=/usr/local/tango-9.2.5a/lib
-#ARG tango_include_path=/usr/local/tango-9.2.5a/include/tango
-#ARG omniORB_install_dir=/usr/local/omniORB-4.2.1
-#ARG omniORB_include_path=/usr/local/omniORB-4.2.1/include
-#ARG omniORB_library_path=/usr/local/omniORB-4.2.1/lib
-#ARG ZMQ_install_dir=/usr/local/tango-9.2.5a
-#ARG ZMQ_include_path=/usr/local/zeromq-4.0.5/include
-#ARG ZMQ_library_path=/usr/local/tango-9.2.5a/lib
-
-ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
-#ENV PKG_CONFIG_PATH=/usr/local/tango-9.2.5a/lib/pkgconfig
-
-#RUN find / -iname tango.h
-#RUN ls -l /usr/local/lib
-
-# Install libuv 1.4.2
-# libuv_1.4.2-1_amd64.deb
-RUN wget --no-check-certificate https://downloads.datastax.com/cpp-driver/ubuntu/14.04/dependencies/libuv/v1.4.2/libuv_1.4.2-1_amd64.deb && \
-    find / -iname libuv_1.4.2-1_amd64.deb && \
-    dpkg -i --force-overwrite /libuv_1.4.2-1_amd64.deb && \
-    apt-get install -f
-# libuv-dev_1.4.2-1_amd64.deb
-RUN wget --no-check-certificate https://downloads.datastax.com/cpp-driver/ubuntu/14.04/dependencies/libuv/v1.4.2/libuv-dev_1.4.2-1_amd64.deb && \
-    find / -iname libuv-dev_1.4.2-1_amd64.deb && \
-    dpkg -i --force-overwrite /libuv-dev_1.4.2-1_amd64.deb && \
-    apt-get install -f
-
-# Install libssl1.0.0
-# cassandra-cpp-driver depends on libssl1.0.0 (>= 1.0.0)
-RUN wget --no-check-certificate http://security.debian.org/debian-security/pool/updates/main/o/openssl/libssl1.0.0_1.0.1t-1+deb8u11_amd64.deb && \
-    find / -iname libssl1.0.0_1.0.1t-1+deb8u11_amd64.deb && \
-    dpkg -i --force-overwrite /libssl1.0.0_1.0.1t-1+deb8u11_amd64.deb && \
-    apt-get install -f
-
-# Install Cassandra C++ driver 2.2.1
-# cassandra-cpp-driver_2.2.1-1_amd64.deb
-RUN wget --no-check-certificate https://downloads.datastax.com/cpp-driver/ubuntu/14.04/cassandra/v2.2.1/cassandra-cpp-driver_2.2.1-1_amd64.deb && \
-    find / -iname cassandra-cpp-driver_2.2.1-1_amd64.deb && \
-    dpkg -i --force-overwrite /cassandra-cpp-driver_2.2.1-1_amd64.deb && \
-    apt-get install -f
-# cassandra-cpp-driver-dev_2.2.1-1_amd64.deb
-RUN wget --no-check-certificate https://downloads.datastax.com/cpp-driver/ubuntu/14.04/cassandra/v2.2.1/cassandra-cpp-driver-dev_2.2.1-1_amd64.deb && \
-    find / -iname cassandra-cpp-driver-dev_2.2.1-1_amd64.deb && \
-    dpkg -i --force-overwrite /cassandra-cpp-driver-dev_2.2.1-1_amd64.deb && \
-    apt-get install -f
-
-# Install libhdbpp
-RUN mkdir hdb++ && \
-    cd hdb++ && \
-    git clone https://github.com/tango-controls-hdbpp/libhdbpp.git && \
-    cd libhdbpp && \
-    mkdir build && \
-    cd build && \
-    cmake -DCMAKE_INCLUDE_PATH="/usr/local/include/tango;/usr/local/include" -DCMAKE_LIBRARY_PATH=/usr/local/lib .. && \
-    make && \
+RUN cd libhdbpp/build \
+ && checkinstall \
+    --install=yes \
+    --fstrans=no \
+    --showinstall=no \
+    --backup=no \
+    --type=debian \
+    --pkgsource="https://github.com/tango-controls-hdbpp/libhdbpp" \
+    --pkglicense="LGPLv3" \
+    --deldesc=no \
+    --nodoc \
+    --strip \
+    --stripso \
+    --maintainer="tango" \
+    --pkgarch=$(dpkg --print-architecture) \
+    --pkgversion="1.0.0" \
+    --pkgrelease="SNAPSHOT" \
+    --pkgname="libhdbpp" \
+    --requires="libzmq5,libomniorb4-2,libcos4-2,libomnithread4" \
     make install
 
-# Copy LibHdbpp Lib files in /usr/local/lib
-RUN cp /hdb++/libhdbpp/lib/* /usr/local/lib
+RUN git clone -b v1.1.0 --depth 1 https://github.com/tango-controls-hdbpp/libhdbpp-mysql.git
 
-RUN find / -iname libhdbpp
-RUN ls /hdb++/libhdbpp
-RUN ls /usr/local/lib
-RUN find / -iname tango.h
+RUN cd libhdbpp-mysql \
+ && make TANGO_INC=/usr/local/include/tango
 
-    
-# Install hdbpp-es
-RUN cd /hdb++ && \
-    git clone https://github.com/tango-controls-hdbpp/hdbpp-es.git && \
-    cd hdbpp-es && \
-    find / -iname PushThread.h && \
-    mv /PushThread.h ./src/PushThread.h && \
-    mv /hdbpp_es_Makefile ./Makefile && \
-    make && \
+RUN cd libhdbpp-mysql \
+ && checkinstall \
+    --install=yes \
+    --fstrans=no \
+    --showinstall=no \
+    --backup=no \
+    --type=debian \
+    --pkgsource="https://github.com/tango-controls-hdbpp/libhdbpp-mysql" \
+    --pkglicense="LGPLv3" \
+    --deldesc=no \
+    --nodoc \
+    --strip \
+    --stripso \
+    --maintainer="tango" \
+    --pkgarch=$(dpkg --print-architecture) \
+    --pkgversion="1.1.0" \
+    --pkgrelease="SNAPSHOT" \
+    --pkgname="libhdbpp-mysql" \
+    --requires="libmariadbclient18" \
     make install
 
-# Install hdbpp-cm
-RUN cd /hdb++ && \
-    git clone https://github.com/tango-controls-hdbpp/hdbpp-cm.git && \
-    cd hdbpp-cm && \
-    find / -iname HdbConfigurationManager.h && \
-    mv /HdbConfigurationManager.h ./src/HdbConfigurationManager.h && \
-    mv /hdbpp_cm_Makefile ./Makefile && \
-    make && \
+RUN git clone -b v1.0.1 --depth 1 https://github.com/tango-controls-hdbpp/hdbpp-es.git
+
+RUN cd hdbpp-es \
+ && make TANGO_INC=/usr/local/include/tango
+
+RUN cd hdbpp-es \
+ && checkinstall \
+    --install=yes \
+    --fstrans=no \
+    --showinstall=no \
+    --backup=no \
+    --type=debian \
+    --pkgsource="https://github.com/tango-controls-hdbpp/hdbpp-es" \
+    --pkglicense="GPLv3" \
+    --deldesc=no \
+    --nodoc \
+    --strip \
+    --stripso \
+    --maintainer="tango" \
+    --pkgarch=$(dpkg --print-architecture) \
+    --pkgversion="1.0.1" \
+    --pkgrelease="SNAPSHOT" \
+    --pkgname="hdbpp-es" \
+    --requires="libzmq5,libomniorb4-2,libcos4-2,libomnithread4" \
     make install
 
-RUN find / -iname mysql.h
+RUN git clone -b v1.0.0 --depth 1 https://github.com/tango-controls-hdbpp/hdbpp-cm.git
 
-# Install libhdbpp-mysql
-#RUN cd /hdb++ && \
-#    git clone https://github.com/tango-controls-hdbpp/libhdbpp-mysql.git && \
-#    cd libhdbpp-mysql && \
-#    mv /LibHdb++MySQL.h ./src/LibHdb++MySQL.h && \
-#    mv /libhdbpp-mysql_Makefile ./Makefile && \
-#    make
-#RUN make install
+RUN cd hdbpp-cm \
+ && make TANGO_INC=/usr/local/include/tango
 
-# Install libhdbpp-cassandra
-RUN cd /hdb++ && \
-    git clone http://github.com/tango-controls-hdbpp/libhdbpp-cassandra.git && \
-    cd libhdbpp-cassandra && \
-    find / -iname LibHdb++Cassandra.h && \
-    mv /LibHdb++Cassandra.h ./src/LibHdb++Cassandra.h && \
-    mkdir build && \
-    cd build && \
-    ls /hdb++/libhdbpp-cassandra && \
-    find / -iname libhdbppcassandra.so && \
-    ls /hdb++/libhdbpp-cassandra/build && \
-    cmake -DCMAKE_INSTALL_PREFIX="/hdb++/libhdbpp-cassandra" -DCMAKE_INCLUDE_PATH="/usr/local/include/tango;/hdb++/libhdbpp/src" -DCMAKE_LIBRARY_PATH="/usr/local/lib" .. && \
-    make && \
+RUN cd hdbpp-cm \
+ && checkinstall \
+    --install=yes \
+    --fstrans=no \
+    --showinstall=no \
+    --backup=no \
+    --type=debian \
+    --pkgsource="https://github.com/tango-controls-hdbpp/hdbpp-cm" \
+    --pkglicense="GPLv3" \
+    --deldesc=no \
+    --nodoc \
+    --strip \
+    --stripso \
+    --maintainer="tango" \
+    --pkgarch=$(dpkg --print-architecture) \
+    --pkgversion="1.0.0" \
+    --pkgrelease="SNAPSHOT" \
+    --pkgname="hdbpp-cm" \
+    --requires="libzmq5,libomniorb4-2,libcos4-2,libomnithread4" \
     make install
 
-ENV LD_LIBRARY_PATH="/hdb++/libhdbpp/lib:/hdb++/libhdbpp-cassandra/build"
-ENV TANGO_HOST=localhost:10000
-RUN cd /hdb++/hdbpp-es/bin && \
-    find / -iname libhdb++.so.6 && \
-    echo $TANGO_HOST
+FROM registry.gitlab.com/s2innovation/tangobox-docker/tangobox-base:latest
 
-#CMD "HdbEventSubscriber" "01"
-#CMD "/bin/bash echo hello"
+RUN apt update \
+ && apt install -y \
+    libmariadbclient18 \
+    mariadb-client \
+    mariadb-server \
+ && apt clean
+
+COPY --from=build \
+    /libhdbpp/build/libhdbpp_1.0.0-SNAPSHOT_amd64.deb \
+    /libhdbpp-mysql/libhdbpp-mysql_1.1.0-SNAPSHOT_amd64.deb \
+    /hdbpp-es/hdbpp-es_1.0.1-SNAPSHOT_amd64.deb \
+    /hdbpp-cm/hdbpp-cm_1.0.0-SNAPSHOT_amd64.deb \
+    /
+
+RUN dpkg -i libhdbpp_*.deb
+RUN dpkg -i libhdbpp-mysql_*.deb
+RUN dpkg -i hdbpp-es_*.deb
+RUN dpkg -i hdbpp-cm_*.deb
+
+RUN ldconfig
+
+COPY resources/create_hdb++.sql /
+COPY resources/my.cnf /etc/mysql/
+COPY resources/supervisord.conf /etc/supervisord.conf
+
+RUN bash -c "mysqld_safe --defaults-file=/etc/mysql/my.cnf &" \
+ && sleep 5 \
+ && mysql -u root < /create_hdb++.sql \
+ && mysql -u root -D hdbpp < /usr/local/share/libhdb++mysql/create_hdb++_mysql.sql \
+ && sleep 5
+
+RUN find / -iname hdb++*
+CMD /usr/bin/supervisord -c /etc/supervisord.conf

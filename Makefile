@@ -11,7 +11,7 @@
 # nexus.engageska-portugal.pt/tango-example/powersupply
 #
 DOCKER_REGISTRY_USER:=tango-example
-PROJECT = tango-example
+PROJECT = archiver
 DSCONFIG_JSON_FILE ?= tango-example/charts/tango-example/data/configuration.json
 
 
@@ -187,7 +187,7 @@ up: build  ## start develop/test environment
 ifneq ($(NETWORK_MODE),host)
 	docker network inspect $(NETWORK_MODE) &> /dev/null || ([ $$? -ne 0 ] && docker network create $(NETWORK_MODE))
 endif
-	$(DOCKER_COMPOSE_ARGS) docker-compose up -d
+	$(DOCKER_COMPOSE_ARGS) docker-compose -f tango.yml -f archiver_tangobox.yml up
 
 piplock: build  ## overwrite Pipfile.lock with the image version
 	docker run $(IMAGE_TO_TEST) cat /app/Pipfile.lock > $(CURDIR)/Pipfile.lock
@@ -199,7 +199,7 @@ interactive:  ## start an interactive session using the project image (caution: 
 
 down:  ## stop develop/test environment and any interactive session
 	docker ps | grep $(CONTAINER_NAME_PREFIX)dev && docker stop $(PROJECT)-dev || true
-	$(DOCKER_COMPOSE_ARGS) docker-compose down
+	$(DOCKER_COMPOSE_ARGS) docker-compose -f tango.yml -f archiver_tangobox.yml down
 ifneq ($(NETWORK_MODE),host)
 	docker network inspect $(NETWORK_MODE) &> /dev/null && ([ $$? -eq 0 ] && docker network rm $(NETWORK_MODE)) || true
 endif
