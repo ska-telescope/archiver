@@ -7,7 +7,7 @@
                 }
             }
         },
-        "hdb++es-srv": {
+        "hdbppes-srv": {
             "01": {
                 "HdbEventSubscriber": {
                     "archiving/hdbpp/eventsubscriber01": {
@@ -15,14 +15,14 @@
                         "properties": {
                             "CheckPeriodicTimeoutDelay": ["5"],
                             "PollingThreadPeriod": ["3"],
-                            "LibConfiguration": ["host=archiver-1234-maria-db","libname=libhdb++mysql.so","dbname=hdb","port=3306", "user=tango", "password=tango"],
+                            "LibConfiguration": ["host=archiver-1234-maria-db","libname=libhdb++mysql.so.6","dbname=hdbpp","port=3307", "user=tango", "password=tango"],
                             "polled_attr": []
                         }
                     }
                 }
             }
         },
-        "hdb++cm-srv": {
+        "hdbppcm-srv": {
             "01": {
                 "HdbConfigurationManager": {
 
@@ -31,7 +31,7 @@
                         "properties": {
                             "ArchiverList": ["archiving/hdbpp/eventsubscriber01"],
                             "MaxSearchSize": ["1000"],
-                            "LibConfiguration": ["host=archiver-1234-maria-db","libname=libhdb++mysql.so","dbname=hdb","port=3306", "user=tango", "password=tango"],
+                            "LibConfiguration": ["host=archiver-1234-maria-db","libname=libhdb++mysql.so.6","dbname=hdbpp","port=3307", "user=tango", "password=tango"],
                             "polled_attr": []
                         }
                     }

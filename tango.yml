@@ -1,4 +1,4 @@
-# 
+#
 # Docker compose file for TANGO database and database device server
 #
 # Defines:
@@ -15,7 +15,7 @@ volumes:
 
 services:
   tangodb:
-    image: nexus.engageska-portugal.pt/ska-docker/tango-db:0.1.0
+    image: nexus.engageska-portugal.pt/ska-docker/tango-db:latest
     container_name: ${CONTAINER_NAME_PREFIX}tangodb
     network_mode: ${NETWORK_MODE}
     environment:
@@ -25,10 +25,10 @@ services:
       - MYSQL_PASSWORD=tango
     volumes:
       - tangodb:/var/lib/mysql
-      - ./resources/my.cnf:/etc/mysql/my.cnf
+    restart: on-failure
 
   databaseds:
-    image: nexus.engageska-portugal.pt/ska-docker/tango-cpp:0.1.0
+    image: nexus.engageska-portugal.pt/ska-docker/tango-cpp:latest
     container_name: ${CONTAINER_NAME_PREFIX}databaseds
     network_mode: ${NETWORK_MODE}
     depends_on:
@@ -49,3 +49,4 @@ services:
       - "2"
       - -ORBendPoint
       - giop:tcp::10000
+    restart: on-failure
