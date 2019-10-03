@@ -1,1 +1,1 @@
-["sys/tg_test/1/ampli"]
+["tango://archiver-1234-databaseds:10000/sys/tg_test/1/ampli"]
