@@ -151,7 +151,7 @@ RUN bash -c "mysqld_safe --defaults-file=/etc/mysql/my.cnf &" \
  && mysql -u root < /create_hdb++.sql \
  && sleep 10 \
  && mysql -u root -D hdbpp < /usr/local/share/libhdb++mysql/create_hdb++_mysql.sql \
- && sleep 100 \
+ && sleep 60 \
  && mysql -u root -D hdbpp -e "CREATE USER 'tango'@'%' identified by 'tango';"\
  && sleep 10 \
  && mysql -u root -D hdbpp -e  "GRANT ALL PRIVILEGES ON hdbpp.* To 'tango'@'%' IDENTIFIED BY 'tango' WITH GRANT OPTION;" \
