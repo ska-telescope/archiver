@@ -5,14 +5,14 @@
 #   - hdbpp-es: HDB++ Event subscriber
 #   - hdbpp-cm: HDB++ Configuration Manager
 #   - configurehdbpp: Container to configure the HDB++ Archiver
-#   - archiver-dsconfig: archiver Dsconfig device to configure HDB++ devices (Event Subscriber and Configuration Manager TANGO devices) in tango database
+#   - dsconfig: archiver Dsconfig device to configure HDB++ devices (Event Subscriber and Configuration Manager TANGO devices) in tango database
 #   - maria-db: MariaDB container
 
 # Requires:
 #   - tango
 #   - MariaDB
 #
-version: '2'
+version: '2.2'
 
 volumes:
   archiverdb: {}
@@ -24,7 +24,7 @@ services:
       container_name: ${CONTAINER_NAME_PREFIX}hdbpp-es
       depends_on:
         - databaseds
-        - archiver-dsconfig
+        - dsconfig
         - maria-db
       environment:
         - TANGO_HOST=${TANGO_HOST}
@@ -48,7 +48,7 @@ services:
       container_name: ${CONTAINER_NAME_PREFIX}hdbpp-cm
       depends_on:
         - databaseds
-        - archiver-dsconfig
+        - dsconfig
         - maria-db
       environment:
         - TANGO_HOST=${TANGO_HOST}
@@ -72,38 +72,38 @@ services:
       container_name: ${CONTAINER_NAME_PREFIX}configurehdbpp
       depends_on:
         - databaseds
-        - archiver-dsconfig
+        - dsconfig
         - maria-db
         - hdbpp-es
         - hdbpp-cm
       environment:
         - TANGO_HOST=${TANGO_HOST}
       volumes:
-        - ../tmcprototype/configure_hdbpp.py:/configure_hdbpp.py
-        - ../data/attribute_fqdn.txt:/attribute_fqdn.txt
+        - ./scripts/configure_hdbpp.py:/configure_hdbpp.py
+        - ./data/attribute_fqdn.txt:/attribute_fqdn.txt
       command: >
         /bin/bash -c "
            sleep 25;
            wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
              sudo chmod 777 /configure_hdbpp.py;
              /venv/bin/python /configure_hdbpp.py \
-              --cm=tango://tmcprototype-1234-databaseds:10000/archiving/hdbpp/confmanager01 \
-              --es=tango://tmcprototype-1234-databaseds:10000/archiving/hdbpp/eventsubscriber01 \
+              --cm=tango://archiver-1234-databaseds:10000/archiving/hdbpp/confmanager01 \
+              --es=tango://archiver-1234-databaseds:10000/archiving/hdbpp/eventsubscriber01 \
               --attrfile=/attribute_fqdn.txt \
               v4"
-  archiver-dsconfig:
+  dsconfig:
     image: nexus.engageska-portugal.pt/ska-docker/tango-dsconfig:latest
-    container_name: ${CONTAINER_NAME_PREFIX}archiver-dsconfig
+    container_name: ${CONTAINER_NAME_PREFIX}dsconfig
     network_mode: ${NETWORK_MODE}
     depends_on:
       - databaseds
     environment:
       - TANGO_HOST=${TANGO_HOST}
     volumes:
-      - ..:/tmc-prototype
+      - .:/tango-example
     command: >
       sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
-             json2tango -w -a -u /tmc-prototype/data/archiver-devices.json &&
+             json2tango -w -a -u /tango-example/data/devices_tangobox.json &&
              sleep infinity"
   maria-db:
     image: nexus.engageska-portugal.pt/tango-example/archiver:latest
@@ -121,6 +121,51 @@ services:
     volumes:
       - archiverdb:/var/lib/mysql
     restart: on-failure
+
+  tangotest:
+    image: nexus.engageska-portugal.pt/tango-example/tango-example:latest
+    container_name: ${CONTAINER_NAME_PREFIX}tangotest
+    network_mode: ${NETWORK_MODE}
+    depends_on:
+      - dsconfig
+    environment:
+      - TANGO_HOST=${TANGO_HOST}
+    command: >
+      sh -c "wait-for-it.sh ${TANGO_HOST} --timeout=30 --strict --
+             /usr/local/bin/TangoTest test"
+
+  hdbpp-viewer:
+    image: hdbpp-viewer:latest
+    container_name: ${CONTAINER_NAME_PREFIX}hdbpp-viewer
+    network_mode: ${NETWORK_MODE}
+    depends_on:
+      - databaseds
+      - dsconfig
+      - maria-db
+      - hdbpp-es
+      - hdbpp-cm
+    environment:
+      - TANGO_HOST=${TANGO_HOST}
+    command: >
+      /bin/bash -c "
+         sleep 60;"
+
+#  hdbpp-viewer:
+#      image: nexus.engageska-portugal.pt/ska-docker/tango-java:latest
+#      container_name: ${CONTAINER_NAME_PREFIX}hdbpp-viewer
+#      network_mode: ${NETWORK_MODE}
+#      depends_on:
+#        - databaseds
+#        - dsconfig
+#        - maria-db
+#        - hdbpp-es
+#        - hdbpp-cm
+#      environment:
+#        - TANGO_HOST=${TANGO_HOST}
+#      volumes:
+#        - ./scripts/Hello.class:/Hello.class
+#      command: "java Hello"
+
 
 # TODO: FOR FUTURE REFERENCE
 #  timescaledb:
