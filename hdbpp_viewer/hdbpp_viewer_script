@@ -1,0 +1,65 @@
+#!/bin/bash
+#applet_name=jive3.MainPanel
+applet_name=HDBViewer.MainPanel
+
+if [ ! $TANGO_HOST ] && [ -f /etc/tangorc ]; then
+   . /etc/tangorc
+fi
+
+#
+# Define the CLASSPATH
+#
+
+JAVALIB=/home/user/tango-9.3.3-rc2/share/java;
+JAVABIN=/home/user/tango-9.3.3-rc2/share/java;
+
+ATK=$JAVALIB/ATKCore.jar:$JAVALIB/ATKWidget.jar:$JAVABIN/ATKPanel.jar
+LOGVIEWER=$JAVALIB/LogViewer.jar
+ASTOR=$JAVALIB/Astor.jar:$JAVALIB/tools_panel.jar
+LOG4J=$JAVALIB/log4j.jar
+LOGBACK=${TANGO_LOGBACK:-/home/user/tango-9.3.3-rc2/share/tango/logback.xml}
+
+TANGO=/hdbpp_viewer/JTango.jar
+TANGOATK=/hdbpp_viewer/ATKCore.jar:/hdbpp_viewer/ATKWidget.jar
+HDBVIEWER=/hdbpp_viewer/jhdbviewer.jar
+HDBPP=/hdbpp_viewer/HDB++.jar
+JYTHON=/hdbpp_viewer/jython.jar
+JCALENDAR=/hdbpp_viewer/jcalendar.jar
+
+HDB_TYPE=mysql
+HDB_MYSQL_HOST=archiver-maria-db
+HDB_USER=tango
+HDB_PASSWORD=tango
+HDB_NAME=hdbpp
+CLASSPATH=$TANGO:$TANGOATK:$HDBVIEWER:$HDBPP:$JYTHON:$JCALENDAR:$JAVALIB/JTango.jar:$JAVABIN/Jive.jar:$ATK:$LOGVIEWER:$ASTOR:$LOG4J:$LOGBACK:.
+
+PATH=$PATH:/hdbpp_viewer
+export TANGO
+export TANGOATK
+export HDBVIEWER
+export HDBPP
+export JYTHON
+export JCALENDAR
+export HDB_TYPE
+export HDB_MYSQL_HOST
+export HDB_USER
+export HDB_PASSWORD
+export HDB_NAME
+export CLASSPATH
+export PATH
+
+echo $CLASSPATH
+echo $HDBVIEWER
+
+#java -Djava.util.logging.config.file=log.properties -DTANGO_HOST=$TANGO_HOST HDBViewer.MainPanel $@
+/usr/bin/java \
+    -mx128m \
+    -DTANGO_HOST=$TANGO_HOST \
+    -Djava.util.logging.config.file=log.properties \
+    $applet_name $@
+
+#/usr/bin/java \
+#    -mx128m \
+#    -DTANGO_HOST=$TANGO_HOST \
+#    -Dlogback.configurationFile="$LOGBACK" \
+#    $applet_name $@

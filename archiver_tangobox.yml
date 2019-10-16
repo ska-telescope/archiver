@@ -12,7 +12,7 @@
 #   - tango
 #   - MariaDB
 #
-version: '2.2'
+version: '2'
 
 volumes:
   archiverdb: {}
@@ -135,6 +135,7 @@ services:
              /usr/local/bin/TangoTest test"
 
   hdbpp-viewer:
+#    image: hdbpp-viewer:latest
     image: hdbpp-viewer:latest
     container_name: ${CONTAINER_NAME_PREFIX}hdbpp-viewer
     network_mode: ${NETWORK_MODE}
@@ -144,11 +145,38 @@ services:
       - maria-db
       - hdbpp-es
       - hdbpp-cm
+    volumes:
+      - ${XAUTHORITY_MOUNT}
     environment:
+      - XAUTHORITY=${XAUTHORITY}
+      - DISPLAY=${DISPLAY}
       - TANGO_HOST=${TANGO_HOST}
-    command: >
-      /bin/bash -c "
-         sleep 60;"
+#    command: >
+#      /bin/bash -c "
+#      echo HELLO!!!;
+#      ls;
+#      find / -name Jive*.jar;
+#      find / -name LogViewer*.jar;
+#      echo HELLO!!!;"
+
+    entrypoint:
+      - wait-for-it.sh
+      - ${TANGO_HOST}
+      - --timeout=30
+      - --strict
+      - --
+      - ./hdbpp_viewer/hdbpp_viewer_script
+#      - /usr/local/bin/jive
+#      - ./hdbpp_viewer/hdbpp_viewer_script
+
+#     - /usr/local/bin/jive
+#        - /usr/local/bin/jive
+
+#    command: >
+#      /bin/bash -c "
+#         echo HELLO!!!;
+#         sleep 60;
+#         java -Djava.util.logging.config.file=log.properties -DTANGO_HOST=$TANGO_HOST HDBViewer.MainPanel $$@"
 
 #  hdbpp-viewer:
 #      image: nexus.engageska-portugal.pt/ska-docker/tango-java:latest
