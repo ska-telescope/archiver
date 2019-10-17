@@ -67,7 +67,7 @@ services:
 #               hdbppcm-srv 01"
 
   configurehdbpp:
-      image: nexus.engageska-portugal.pt/ska-docker/ska-python-buildenv:0.1.0
+      image: nexus.engageska-portugal.pt/ska-docker/ska-python-buildenv:0.2.2
       network_mode: ${NETWORK_MODE}
       container_name: ${CONTAINER_NAME_PREFIX}configurehdbpp
       depends_on:
@@ -151,12 +151,19 @@ services:
       - XAUTHORITY=${XAUTHORITY}
       - DISPLAY=${DISPLAY}
       - TANGO_HOST=${TANGO_HOST}
+      - HDB_TYPE=mysql
+      - HDB_MYSQL_HOST=archiver-maria-db
+      - HDB_MYSQL_PORT=3307
+      - HDB_USER=tango
+      - HDB_PASSWORD=tango
+      - HDB_NAME=hdbpp
 #    command: >
 #      /bin/bash -c "
 #      echo HELLO!!!;
 #      ls;
 #      find / -name Jive*.jar;
 #      find / -name LogViewer*.jar;
+#      find / -name HDBPP*.jar;
 #      echo HELLO!!!;"
 
     entrypoint:

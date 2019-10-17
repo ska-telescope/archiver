@@ -1,26 +1,57 @@
 FROM nexus.engageska-portugal.pt/ska-docker/tango-java:latest
 USER root
 RUN apt-get update
-RUN apt-get install -y --force-yes curl
+RUN apt-get install -y --force-yes wget
 
 #RUN ls -l
+#RUN cd usr \
+# && cd local \
+# && cd share \
+# && cd java \
+# && ls
 
 RUN mkdir hdbpp_viewer \
  && cd hdbpp_viewer \
  && ls \
- && curl -o ATKCore.jar ftp://ftp.esrf.eu/pub/cs/tango/Atk/ATKCore.jar \
- && curl -o ATKWidget.jar ftp://ftp.esrf.eu/pub/cs/tango/Atk/ATKWidget.jar \
- && curl -o HDB++.jar https://bintray.com/tango-controls/maven/libhdbpp-java/1.25?pkgPath=%2Ftango-controls%2Fmaven%2Flibhdbpp-java#files/org%2Ftango%2Flibhdbpp-java%2F1.25 \
- && curl -o jcalendar.jar ftp://ftp.esrf.eu/pub/cs/tango/hdbviewer/jcalendar.jar \
- && curl -o jython.jar ftp://ftp.esrf.eu/pub/cs/tango/hdbviewer/jython.jar \
- && curl -o jhdbviewer.jar ftp://ftp.esrf.eu/pub/cs/tango/hdbviewer/jhdbviewer.jar \
- && curl -o JTango.jar https://sourceforge.net/projects/tango-cs/files/JTango/JTango-9.0.3/JTango-9.0.3.jar/download \
+ && wget -O jython.jar ftp://ftp.esrf.eu/pub/cs/tango/hdbviewer/jython.jar \
+ && wget -O HDBPP.jar https://bintray.com/tango-controls/maven/download_file?file_path=org%2Ftango%2Flibhdbpp-java%2F1.25%2Flibhdbpp-java-1.25.jar \
+ && wget -O ATKCore.jar ftp://ftp.esrf.eu/pub/cs/tango/Atk/ATKCore.jar \
+ && wget -O ATKWidget.jar ftp://ftp.esrf.eu/pub/cs/tango/Atk/ATKWidget.jar \
+ && wget -O jcalendar.jar ftp://ftp.esrf.eu/pub/cs/tango/hdbviewer/jcalendar.jar \
+ && wget -O jhdbviewer.jar ftp://ftp.esrf.eu/pub/cs/tango/hdbviewer/jhdbviewer.jar \
+ && wget -O JTango.jar https://sourceforge.net/projects/tango-cs/files/JTango/JTango-9.0.3/JTango-9.0.3.jar/download \
  && ls
+# && curl -o ATKCore.jar ftp://ftp.esrf.eu/pub/cs/tango/Atk/ATKCore.jar \
+# && curl -o ATKWidget.jar ftp://ftp.esrf.eu/pub/cs/tango/Atk/ATKWidget.jar \
+# && curl -o HDBPP.jar https://bintray.com/tango-controls/maven/libhdbpp-java/1.25?pkgPath=%2Ftango-controls%2Fmaven%2Flibhdbpp-java#files/org%2Ftango%2Flibhdbpp-java%2F1.25 \
+# && curl -o jcalendar.jar ftp://ftp.esrf.eu/pub/cs/tango/hdbviewer/jcalendar.jar \
+# && curl -o jython.jar ftp://ftp.esrf.eu/pub/cs/tango/hdbviewer/jython.jar \
+# && curl -o jhdbviewer.jar ftp://ftp.esrf.eu/pub/cs/tango/hdbviewer/jhdbviewer.jar \
+# && curl -o JTango.jar https://sourceforge.net/projects/tango-cs/files/JTango/JTango-9.0.3/JTango-9.0.3.jar/download \
 
-ADD hdbpp_viewer_script hdbpp_viewer
 RUN ls
+#ADD ATKCore.jar hdbpp_viewer
+ADD hdbpp_viewer_script hdbpp_viewer
+#ADD ATKWidget.jar hdbpp_viewer
+#ADD HDBPP.jar hdbpp_viewer
+#ADD jcalendar.jar hdbpp_viewer
+#ADD jhdbviewer.jar hdbpp_viewer
+#ADD JTango.jar hdbpp_viewer
+#ADD jython.jar hdbpp_viewer
+
+
+RUN cd hdbpp_viewer \
+ && ls
+#RUN cp -a /hdbpp_viewer/. /usr/local/share/java
+
+#RUN cd usr \
+# && cd local \
+# && cd share \
+# && cd java \
+# && ls
+#
+#RUN ls
 #WORKDIR hdbpp_viewer
-RUN ls -l
 #WORKDIR hdbpp_viewer
 
 
@@ -31,7 +62,8 @@ RUN ls -l
 #ENV JYTHON="hdbpp_viewer/jython.jar"
 #ENV JCALENDAR="hdbpp_viewer/jcalendar.jar"
 
-RUN find . -iname JTango.jar
+RUN find . -iname HDBPP.jar
+RUN find . -iname ATKCore.jar
 
 #RUN echo $CLASSPATH
 
