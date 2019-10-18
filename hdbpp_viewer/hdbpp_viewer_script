@@ -1,6 +1,4 @@
 #!/bin/bash
-#applet_name=jive3.MainPanel
-applet_name=HDBViewer.MainPanel
 
 if [ ! $TANGO_HOST ] && [ -f /etc/tangorc ]; then
    . /etc/tangorc
@@ -13,14 +11,6 @@ fi
 BASEDIR=$(dirname "$0")
 echo "$BASEDIR"
 echo "************"
-JAVALIB=/home/user/tango-9.3.3-rc2/share/java;
-JAVABIN=/home/user/tango-9.3.3-rc2/share/java;
-
-ATK=$JAVALIB/ATKCore.jar:$JAVALIB/ATKWidget.jar:$JAVABIN/ATKPanel.jar
-LOGVIEWER=$JAVALIB/LogViewer.jar
-ASTOR=$JAVALIB/Astor.jar:$JAVALIB/tools_panel.jar
-LOG4J=$JAVALIB/log4j.jar
-LOGBACK=${TANGO_LOGBACK:-/home/user/tango-9.3.3-rc2/share/tango/logback.xml}
 
 TANGO=$BASEDIR/JTango.jar
 TANGOATK=$BASEDIR/ATKCore.jar:$BASEDIR/ATKWidget.jar
@@ -51,16 +41,4 @@ echo "************"
 echo $HDBVIEWER
 echo "************"
 
-#java -classpath $CLASSPATH -Djava.util.logging.config.file=log.properties -DTANGO_HOST=$TANGO_HOST HDBViewer.MainPanel $@
 java -Djava.util.logging.config.file=log.properties -DTANGO_HOST=$TANGO_HOST HDBViewer.MainPanel $@
-#/usr/bin/java \
-#    -mx128m \
-#    -DTANGO_HOST=$TANGO_HOST \
-#    -Djava.util.logging.config.file=log.properties \
-#    $applet_name $@
-
-#/usr/bin/java \
-#    -mx128m \
-#    -DTANGO_HOST=$TANGO_HOST \
-#    -Dlogback.configurationFile="$LOGBACK" \
-#    $applet_name $@

@@ -7,6 +7,7 @@
 #   - configurehdbpp: Container to configure the HDB++ Archiver
 #   - dsconfig: archiver Dsconfig device to configure HDB++ devices (Event Subscriber and Configuration Manager TANGO devices) in tango database
 #   - maria-db: MariaDB container
+#   - hdbpp-viewer: HdbppViewer container
 
 # Requires:
 #   - tango
@@ -157,15 +158,6 @@ services:
       - HDB_USER=tango
       - HDB_PASSWORD=tango
       - HDB_NAME=hdbpp
-#    command: >
-#      /bin/bash -c "
-#      echo HELLO!!!;
-#      ls;
-#      find / -name Jive*.jar;
-#      find / -name LogViewer*.jar;
-#      find / -name HDBPP*.jar;
-#      echo HELLO!!!;"
-
     entrypoint:
       - wait-for-it.sh
       - ${TANGO_HOST}
@@ -173,34 +165,6 @@ services:
       - --strict
       - --
       - ./hdbpp_viewer/hdbpp_viewer_script
-#      - /usr/local/bin/jive
-#      - ./hdbpp_viewer/hdbpp_viewer_script
-
-#     - /usr/local/bin/jive
-#        - /usr/local/bin/jive
-
-#    command: >
-#      /bin/bash -c "
-#         echo HELLO!!!;
-#         sleep 60;
-#         java -Djava.util.logging.config.file=log.properties -DTANGO_HOST=$TANGO_HOST HDBViewer.MainPanel $$@"
-
-#  hdbpp-viewer:
-#      image: nexus.engageska-portugal.pt/ska-docker/tango-java:latest
-#      container_name: ${CONTAINER_NAME_PREFIX}hdbpp-viewer
-#      network_mode: ${NETWORK_MODE}
-#      depends_on:
-#        - databaseds
-#        - dsconfig
-#        - maria-db
-#        - hdbpp-es
-#        - hdbpp-cm
-#      environment:
-#        - TANGO_HOST=${TANGO_HOST}
-#      volumes:
-#        - ./scripts/Hello.class:/Hello.class
-#      command: "java Hello"
-
 
 # TODO: FOR FUTURE REFERENCE
 #  timescaledb:
